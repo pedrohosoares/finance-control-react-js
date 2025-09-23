@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Header from "./components/Header"
 import Forms from "./components/Forms";
 import History from "./components/History";
-import { listData } from "./services/storageService";
+import { excludeData, listData } from "./services/storageService";
 import { listCategories } from "./services/storageCategory";
 import Search from "./components/Search";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,10 +19,13 @@ export default function App()
     const [categories,setCategories] = useState(listCategories());
     const [selectedCategory,setSelectedCategory] = useState('');
 
+    const [editValue,setEditValue] = useState({});
+    const [deleteItem,setDeleteItem] = useState({});
+
     useEffect(()=>{
         const dataSaved = listData(search,todayDate,futureDate,selectedCategory);
         setValues(dataSaved);
-    },[todayDate,futureDate,search,selectedCategory]);
+    },[todayDate,futureDate,search,selectedCategory,deleteItem]);
 
 
     function updateDateSearch(date_start,date_end){
@@ -33,11 +36,20 @@ export default function App()
     {
         setSelectedCategory(category);
     }
+    function excludeItem(idName){
+        setDeleteItem(idName);
+        excludeData(idName);
+    }
     
     return <div className="row justify-content-md-center">
         <div className="col-md-10 p-4">
             <Header></Header>
-            <Forms todayDate={todayDate} categories={categories} history={values} updateHistory={setValues}></Forms>
+            <Forms 
+                todayDate={todayDate} 
+                categories={categories} 
+                history={values} 
+                updateHistory={setValues}
+                editValue={editValue}></Forms>
             <hr />
             <TotalValues totalValues={values}></TotalValues>
             <Search 
@@ -50,7 +62,7 @@ export default function App()
                 setSelectedCategory={updateCategorySearch}
                 selectedCategory={selectedCategory}>
             </Search>
-            <History data={values}></History>
+            <History data={values} setEditValue={setEditValue} excludeItem={excludeItem}></History>
         </div>
     </div>;    
 }

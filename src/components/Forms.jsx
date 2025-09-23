@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { storageDate } from '../services/storageService';
 import { RenderCategories} from './RenderCategories';
 import { saveCategory } from '../services/storageCategory';
@@ -10,32 +10,53 @@ export default function Forms({
     categories,
     todayDate,
     history,
-    updateHistory
+    updateHistory,
+    editValue
 })
 {
     const valuesStart = {
+        id:'',
         category:'',
         date:todayDate,
         description:'',
         value:'',
         type:'in'
     };
+    
+    
     const [form,setForm] = useState(valuesStart);
     const [message, setMessage] = useState(null);
-
-    function submit(){
-        //Save data (register)
-        const messageError = VerifyIfEmpty(valuesStart,form);
-        if(messageError != undefined && messageError.message.length > 0){
-          setMessage(messageError);
-        }else{
-          const data = storageDate(form);
-          setMessage(data);
-          saveCategory(form.category);
-          setForm(valuesStart)
-          updateHistory([...history,data.data]);
-        }
+      
+    useEffect(() => {
+      if (editValue && editValue.id != null) {
+        setForm({...editValue,...editValue});
+      }else{
+        setForm(valuesStart);
+      } 
+    }, [editValue?.id]);
+    
+    function submit() {
+      const messageError = VerifyIfEmpty(valuesStart, form);
+      if (messageError?.message?.length) {
+        setMessage(messageError);
+        return;
+      }
+    
+      const result = storageDate(form);      
+      const saved  = result.data;
+    
+      updateHistory(prev => {
+        const exists = prev.some(x => x.id === saved.id);
+        return exists
+          ? prev.map(x => (x.id === saved.id ? saved : x)) 
+          : [...prev, saved];                      
+      });
+    
+      setMessage(result);
+      saveCategory(form.category);
+      setForm(valuesStart);
     }
+    
 
     function changeValue(e){
         const { name,value } = e.target;
@@ -45,6 +66,7 @@ export default function Forms({
         <div className="row">
           <Erros objectMessage={message}></Erros>
           <div className="col-12 col-md-6">
+            <input type="hidden" value={form.id ?? ""} name='id' />
             <div className="form-group">
               <label htmlFor="type">Type</label>
               <select
@@ -78,7 +100,7 @@ export default function Forms({
           <div className="col-12 col-md-6">
             <div className="form-group">
               <label htmlFor="value">Value</label>
-              <CurrencyInput value={form.value} onChange={changeValue} />
+              <CurrencyInput value={form.value ?? "0"} onChange={changeValue} />
             </div>
       
             <div className="form-group">
