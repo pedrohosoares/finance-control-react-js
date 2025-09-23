@@ -11,7 +11,7 @@ export default function TotalValues({totalValues}){
                 <strong>Total Out: </strong><span>R${total.out}</span>
             </label>
             <label className="small col-md-4 col-12">
-                <strong>Finally: </strong><span>R${total.finally}</span>
+                <strong>Resume: </strong><span>R${total.resume}</span>
             </label>
         </div>
         <hr />

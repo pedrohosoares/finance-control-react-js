@@ -12,7 +12,7 @@ export default function returnTotal(values){
     const totals = {
         'in':maskMoney(in_),
         'out':maskMoney(out_),
-        'finally':maskMoney(in_ - out_)
+        'resume':maskMoney(in_ - out_)
     };
     return totals;
 }
