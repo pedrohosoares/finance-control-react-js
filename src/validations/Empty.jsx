@@ -5,9 +5,9 @@ export function Empty(value){
 export function VerifyIfEmpty(object,objectValue){
     for (const key in object) {
         const value = objectValue[key];
-        if(Empty(value)){
+        if(key !== 'id' && Empty(value)){
             return {
-                'message':`O campo ${key} esta em branco`,
+                'message':`The field ${key} is empty`,
                 'code': 500
                     };
         }
